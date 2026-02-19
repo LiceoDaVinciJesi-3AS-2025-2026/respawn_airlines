@@ -55,7 +55,7 @@ def main() -> None:
                 if buttonRect_start.collidepoint(mPos):
                     #se clicchi sul pulsante start esci dalla schermata iniziale e inizia il gioco (gioco=True)
                     home=False
-                    #game=True           #PER ALE:se devi fare sta parte decommenta
+                    game=True           
 
                 if buttonRect_reg.collidepoint(mPos):
                     #se clicchi sul pulsante start esci dalla schermata iniziale e apre il regolamento (regolamento=True)
@@ -86,9 +86,36 @@ def main() -> None:
         elif regolamento:
             screen.fill("darkred")                  #C'è DA FARE IL REGOLAMENTO VERO E PROPRIO SU QUESTA SCHERMATA 
         
-        elif game:
-            print("ciao")
-            #ALE SCRIVICI TU QUI..... NON TOCCARE IL REGOLAMENTO E I TASTI!!!!1
+#         #opero nella schermata del gioco
+#         elif game:    #GIUSTO
+#              # Disegna lo sfondo del gioco
+#             screen.blit(imgSfondoGame, (0, 0))
+# 
+#     # Gravità e movimento aereo
+#         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+#             aereo_vel = -8  # spinta verso l'alto
+#             aereo_vel += gravità
+#             aereo_y += aereo_vel 
+#     # Disegna l'aereo
+#             screen.blit(imgAereo, (aereo_x, aereo_y))                                  #TUTTA STA ROBA NON FUNZIONA...C'è DA RIGUARDARLA
+# 
+#     # Movimento palazzi (ostacoli)
+#         for palazzo in palazzi:
+#             palazzo["x"] -= velocità_palazzi
+#             screen.blit(imgPalazzo, (palazzo["x"], palazzo["y"]))
+# 
+#     # Collisioni con palazzi o con il terreno
+#         for palazzo in palazzi:
+#             if aereo_rect.colliderect(palazzo_rect):
+#                 game = False  # game over
+#     # Rimuovi palazzo se esce dallo schermo
+#             palazzi = [p for p in palazzi if p["x"] > -palazzo_larghezza]
+            
+
+#             if event.type == pygame.KEYDOWN:                             #SAREBBE DA INSERIRE SOTTO for event in pygame.event.get():
+#                 #se ci si ritrova nel gioco 
+#                 if event.key == pygame.K_SPACE and game:
+#                     aereo_vel = -8
 
 
 
