@@ -8,8 +8,8 @@ def main() -> None:
     #controlla la velocità del gioco
     clock = pygame.time.Clock()
 
-    larghezza_schermo = 800
-    altezza_schermo = 448
+    larghezza_schermo = 1200
+    altezza_schermo = 672
     
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
@@ -17,15 +17,15 @@ def main() -> None:
     imgSfondo = pygame.image.load("sfondo.jpg")
     imgSfondo = pygame.transform.scale(imgSfondo, (larghezza_schermo, altezza_schermo))
 
-    font = pygame.font.SysFont('Rewashington', 40)
+    font = pygame.font.SysFont('Rewashington', 65)
 
     # creo il pulsante start
-    buttonRect_start = pygame.Rect(larghezza_schermo // 2 + 80, altezza_schermo - 180, 180, 60)
+    buttonRect_start = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 320, 300, 90)
     textStart = font.render('Start', True, "white")
     textStartRect = textStart.get_rect(center=buttonRect_start.center)
 
     # creo il pulsante regolamento
-    buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 80, altezza_schermo - 100, 180, 60)
+    buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 200, 300, 90)
     textReg = font.render('Regolamento', True, "white")
     textRegRect = textReg.get_rect(center=buttonRect_reg.center)
     
@@ -116,7 +116,10 @@ def main() -> None:
             screen.blit(textReg, textRegRect)
         
         elif regolamento:
-            screen.fill("darkred")                  #C'è DA FARE IL REGOLAMENTO VERO E PROPRIO SU QUESTA SCHERMATA 
+            imgReg = pygame.image.load("imgRegolamento.png")   
+            imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))      
+            
+            screen.blit(imgReg, (0, 0)) 
         
         #opero nella schermata del gioco
         elif game:    #GIUSTO
