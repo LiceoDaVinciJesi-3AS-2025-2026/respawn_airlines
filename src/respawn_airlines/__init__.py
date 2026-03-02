@@ -6,6 +6,7 @@ def main() -> None:
     import random
 >>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
     
+
     pygame.init()
     #inizializza i moudli pygame
     
@@ -14,6 +15,18 @@ def main() -> None:
 
     larghezza_schermo = 1200
     altezza_schermo = 672
+    
+    sfondi = ["imgSfondoNY.png", "imgSfondoCina.png", "imgSfondoThailandia.png", "imgSfondoHawaii.png"] 
+    sfondi_gioco = []
+    
+    
+    for nome in sfondi:
+        carica_img = pygame.image.load(nome)
+        sfondi_gioco.append(pygame.transform.scale(carica_img, (larghezza_schermo, altezza_schermo)))
+    
+    
+    indice_sfondo = 0
+    punteggio = 0
     
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
@@ -52,8 +65,7 @@ def main() -> None:
     
     # Carica l'immagine e crea quella sottosopra
     imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha()
-    
-    imgPalazzo = pygame.transform.scale(imgPalazzo, (150, 450)) 
+
     imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
 
     # Variabili dei palazzi
@@ -89,6 +101,7 @@ def main() -> None:
                 #se ci si ritrova nel gioco e si preme spazio l'aereo viene spinto verso l'alto
                 if event.key == pygame.K_SPACE and game: 
                     aereo_vel = -11
+                    aereo_vel = -10
                       
             #gestione pulsanti          
             if event.type == pygame.MOUSEBUTTONDOWN:          
@@ -131,8 +144,18 @@ def main() -> None:
         
         #opero nella schermata del gioco
         elif game:    #GIUSTO
+        elif game:
+            if punteggio >= 15 and punteggio < 30:
+                indice_sfondo = 1
+            elif punteggio >= 30:
+                indice_sfondo = 2
+            else:
+                indice_sfondo = 0
+            
+            screen.blit(sfondi_gioco[indice_sfondo], (0, 0))
             # Disegna lo sfondo del gioco
             imgSfondoGame = pygame.image.load("imgSfondoNY.png")    #C'è DA SISTEMARE LO SFONDO + FAR PARTIRE L'AEREO DA PIù DIETRO????
+            imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
             imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
             
             screen.blit(imgSfondoGame, (0, 0))
@@ -165,13 +188,16 @@ def main() -> None:
             
 <<<<<<< HEAD
 =======
+
             # Crea un rettangolo attorno all'aereo per vedere se tocca i palazzi
             aereo_rect = pygame.Rect(aereo_x, aereo_y, 50, 20) 
+            aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30) 
               
                         # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
             timer_palazzi += 1
             timer_amntenne += 1
             if timer_palazzi > 90 and timer_antenne > 90: 
+            if timer_palazzi > 90: 
                 buco_y = random.randint(120, 320) # Punto centrale del passaggio
                 
                 # Crea il rettangolo per il palazzo sopra e quello sotto
@@ -180,6 +206,8 @@ def main() -> None:
                 p_sotto = pygame.Rect(800, buco_y + 130, 120, 448)
                 antenna_sopra = pygame.Rect(835, p_sopra.bottom, 30, 40) #il punto medio della base si trova a 850 ma l'antenna sarà larga 30, quindi 30/2 è 15, 850-15 è 835 
                 antenna_sotto = pygame.Rect(835, p_sotto.top - 40, 30, 40)
+                p_sopra = pygame.Rect(800, 0, 80, buco_y - 130)
+                p_sotto = pygame.Rect(800, buco_y + 130, 80, 448)
                 
                 palazzi.append(p_sopra)
                 palazzi.append(p_sotto)
@@ -206,12 +234,13 @@ def main() -> None:
                 # Se il palazzo esce dallo schermo, cancellalo dalla lista
                 if p.right < 0:
                     palazzi.remove(p)
+                    punteggio += 0.5
 
                 for p in palazzi:
                     if aereo_rect.colliderect(p) or aereo_rect.colliderect(a):
+                    if aereo_rect.colliderect(p):
                         game = False
                         home = True
-                        antenne.clear()
                         palazzi.clear() # Svuota i palazzi per la prossima partita
                         timer_palazzi = 0
                         timer_antenne = 0
@@ -240,6 +269,9 @@ def main() -> None:
 
 
 
+                        punteggio += 0
+                        indice_sfondo = 0
+                        
         pygame.display.flip()
 
     pygame.quit()
