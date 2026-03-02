@@ -1,7 +1,10 @@
 def main() -> None:
     import pygame
+<<<<<<< HEAD
     import random 
+=======
     import random
+>>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
     
     pygame.init()
     #inizializza i moudli pygame
