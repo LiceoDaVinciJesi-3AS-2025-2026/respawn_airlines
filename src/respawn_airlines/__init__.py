@@ -1,5 +1,6 @@
 def main() -> None:
     import pygame
+    import random 
     
     pygame.init()
     #inizializza i moudli pygame
@@ -40,8 +41,8 @@ def main() -> None:
     home = True   #corrisponde alla schermata home
     regolamento = False  #regolamento=True -> schermata del regolamento
     game = False  #gioco=True -> schermata del gioco
-
-
+    
+    
     while running:
 
         # posizione del mouse
@@ -139,9 +140,6 @@ def main() -> None:
                 aereo_y = altezza_schermo - 50
                 aereo_vel = 0
             
-    
-#       FINO A QUI è GIUSTO-> C'è DA MODIFICARE E METTERE PALAZZI
-
 #     # Movimento palazzi (ostacoli)
 #         for palazzo in palazzi:
 #             palazzo["x"] -= velocità_palazzi
