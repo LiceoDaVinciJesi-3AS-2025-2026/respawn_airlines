@@ -1,6 +1,7 @@
 def main() -> None:
     import pygame
     import random 
+    import random
     
     pygame.init()
     #inizializza i moudli pygame
@@ -8,8 +9,8 @@ def main() -> None:
     #controlla la velocità del gioco
     clock = pygame.time.Clock()
 
-    larghezza_schermo = 800
-    altezza_schermo = 448
+    larghezza_schermo = 1200
+    altezza_schermo = 672
     
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
@@ -17,15 +18,15 @@ def main() -> None:
     imgSfondo = pygame.image.load("sfondo.jpg")
     imgSfondo = pygame.transform.scale(imgSfondo, (larghezza_schermo, altezza_schermo))
 
-    font = pygame.font.SysFont('Rewashington', 40)
+    font = pygame.font.SysFont('Rewashington', 65)
 
     # creo il pulsante start
-    buttonRect_start = pygame.Rect(larghezza_schermo // 2 + 80, altezza_schermo - 180, 180, 60)
+    buttonRect_start = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 320, 300, 90)
     textStart = font.render('Start', True, "white")
     textStartRect = textStart.get_rect(center=buttonRect_start.center)
 
     # creo il pulsante regolamento
-    buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 80, altezza_schermo - 100, 180, 60)
+    buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 200, 300, 90)
     textReg = font.render('Regolamento', True, "white")
     textRegRect = textReg.get_rect(center=buttonRect_reg.center)
     
@@ -41,7 +42,23 @@ def main() -> None:
     home = True   #corrisponde alla schermata home
     regolamento = False  #regolamento=True -> schermata del regolamento
     game = False  #gioco=True -> schermata del gioco
+<<<<<<< HEAD
     
+=======
+
+    
+    # Carica l'immagine e crea quella sottosopra
+    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha()
+    
+    imgPalazzo = pygame.transform.scale(imgPalazzo, (150, 450)) 
+    imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
+
+    # Variabili dei palazzi
+    palazzi = []
+    antenne = []
+    timer_palazzi = 0
+    timer_antenne = 0
+>>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
     
     while running:
 
@@ -104,7 +121,10 @@ def main() -> None:
             screen.blit(textReg, textRegRect)
         
         elif regolamento:
-            screen.fill("darkred")                  #C'è DA FARE IL REGOLAMENTO VERO E PROPRIO SU QUESTA SCHERMATA 
+            imgReg = pygame.image.load("imgRegolamento.png")   
+            imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))      
+            
+            screen.blit(imgReg, (0, 0)) 
         
         #opero nella schermata del gioco
         elif game:    #GIUSTO
@@ -140,6 +160,62 @@ def main() -> None:
                 aereo_y = altezza_schermo - 50
                 aereo_vel = 0
             
+<<<<<<< HEAD
+=======
+            # Crea un rettangolo attorno all'aereo per vedere se tocca i palazzi
+            aereo_rect = pygame.Rect(aereo_x, aereo_y, 50, 20) 
+              
+                        # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
+            timer_palazzi += 1
+            timer_amntenne += 1
+            if timer_palazzi > 90 and timer_antenne > 90: 
+                buco_y = random.randint(120, 320) # Punto centrale del passaggio
+                
+                # Crea il rettangolo per il palazzo sopra e quello sotto
+                # (x, y, larghezza, altezza)
+                p_sopra = pygame.Rect(800, 0, 120, buco_y - 130)
+                p_sotto = pygame.Rect(800, buco_y + 130, 120, 448)
+                antenna_sopra = pygame.Rect(835, p_sopra.bottom, 30, 40) #il punto medio della base si trova a 850 ma l'antenna sarà larga 30, quindi 30/2 è 15, 850-15 è 835 
+                antenna_sotto = pygame.Rect(835, p_sotto.top - 40, 30, 40)
+                
+                palazzi.append(p_sopra)
+                palazzi.append(p_sotto)
+                timer_palazzi = 0
+
+            # --- MUOVI E DISEGNA I PALAZZI ---
+            for p in palazzi[:]:
+                p.x -= 5 # Sposta a sinistra
+
+                if p.y == 0: # Se il palazzo parte dall'alto
+                    screen.blit(imgPalazzoSopra, (p.x, p.bottom - 448))
+                else:        # Se il palazzo parte dal basso
+                    screen.blit(imgPalazzo, (p.x, p.top))
+                    
+            for a in antenne[:]:
+                a.x -= 5 # Sposta a sinistra
+                
+
+                #bisogna ritagliare l'immagine del palazzo e dividerla tra il rettabgolo grande e quello dell'antenna
+                #chiamare l'immagine imgAntenna.jpg
+                #variabili antenna: a, antenna
+                
+                
+                # Se il palazzo esce dallo schermo, cancellalo dalla lista
+                if p.right < 0:
+                    palazzi.remove(p)
+
+                for p in palazzi:
+                    if aereo_rect.colliderect(p) or aereo_rect.colliderect(a):
+                        game = False
+                        home = True
+                        antenne.clear()
+                        palazzi.clear() # Svuota i palazzi per la prossima partita
+                        timer_palazzi = 0
+                        timer_antenne = 0
+    
+#       FINO A QUI è GIUSTO-> C'è DA MODIFICARE E METTERE PALAZZI
+
+>>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
 #     # Movimento palazzi (ostacoli)
 #         for palazzo in palazzi:
 #             palazzo["x"] -= velocità_palazzi
