@@ -1,10 +1,7 @@
 def main() -> None:
     import pygame
-<<<<<<< HEAD
     import random 
-=======
-    import random
->>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
+
     
 
     pygame.init()
@@ -58,10 +55,6 @@ def main() -> None:
     home = True   #corrisponde alla schermata home
     regolamento = False  #regolamento=True -> schermata del regolamento
     game = False  #gioco=True -> schermata del gioco
-<<<<<<< HEAD
-    
-=======
-
     
     # Carica l'immagine e crea quella sottosopra
     imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha()
@@ -73,7 +66,6 @@ def main() -> None:
     antenne = []
     timer_palazzi = 0
     timer_antenne = 0
->>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
     
     while running:
 
@@ -143,7 +135,6 @@ def main() -> None:
             screen.blit(imgReg, (0, 0)) 
         
         #opero nella schermata del gioco
-        elif game:    #GIUSTO
         elif game:
             if punteggio >= 15 and punteggio < 30:
                 indice_sfondo = 1
@@ -154,7 +145,6 @@ def main() -> None:
             
             screen.blit(sfondi_gioco[indice_sfondo], (0, 0))
             # Disegna lo sfondo del gioco
-            imgSfondoGame = pygame.image.load("imgSfondoNY.png")    #C'è DA SISTEMARE LO SFONDO + FAR PARTIRE L'AEREO DA PIù DIETRO????
             imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
             imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
             
@@ -185,17 +175,15 @@ def main() -> None:
             if aereo_y > altezza_schermo - 50:  #ho messo 50 che è l'altezza dell'aereo
                 aereo_y = altezza_schermo - 50
                 aereo_vel = 0
-            
-<<<<<<< HEAD
-=======
 
+            
             # Crea un rettangolo attorno all'aereo per vedere se tocca i palazzi
             aereo_rect = pygame.Rect(aereo_x, aereo_y, 50, 20) 
             aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30) 
               
                         # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
             timer_palazzi += 1
-            timer_amntenne += 1
+            timer_antenne += 1
             if timer_palazzi > 90 and timer_antenne > 90: 
             if timer_palazzi > 90: 
                 buco_y = random.randint(120, 320) # Punto centrale del passaggio
@@ -237,7 +225,6 @@ def main() -> None:
                     punteggio += 0.5
 
                 for p in palazzi:
-                    if aereo_rect.colliderect(p) or aereo_rect.colliderect(a):
                     if aereo_rect.colliderect(p):
                         game = False
                         home = True
@@ -247,7 +234,7 @@ def main() -> None:
     
 #       FINO A QUI è GIUSTO-> C'è DA MODIFICARE E METTERE PALAZZI
 
->>>>>>> 9bdbcf8ce47def06c54bdf32811f301d7ed70422
+
 #     # Movimento palazzi (ostacoli)
 #         for palazzo in palazzi:
 #             palazzo["x"] -= velocità_palazzi
