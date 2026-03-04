@@ -13,17 +13,6 @@ def main() -> None:
     larghezza_schermo = 1200
     altezza_schermo = 672
     
-    sfondi = ["imgSfondoNY.png", "imgSfondoCina.png", "imgSfondoThailandia.png", "imgSfondoHawaii.png"] 
-    sfondi_gioco = []
-    
-    
-    for nome in sfondi:
-        carica_img = pygame.image.load(nome)
-        sfondi_gioco.append(pygame.transform.scale(carica_img, (larghezza_schermo, altezza_schermo)))
-    
-    
-    indice_sfondo = 0
-    punteggio = 0
     
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
@@ -57,15 +46,15 @@ def main() -> None:
     game = False  #gioco=True -> schermata del gioco
     
     # Carica l'immagine e crea quella sottosopra
-    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha()
+    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha() #per la trasparenza
+    maskPalazzo= pygame.mask.from_surface(imgPalazzo)     #considera solo le parti delle immagini opache ignorando quelle trasparenti intorno
 
     imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
+    maskPalazzoSopra= pygame.mask.from_surface(imgPalazzoSopra) 
 
     # Variabili dei palazzi
     palazzi = []
-#     antenne = []
     timer_palazzi = 0
-#     timer_antenne = 0
     
     while running:
 
@@ -136,14 +125,8 @@ def main() -> None:
         
         #opero nella schermata del gioco
         elif game:
-            if punteggio >= 15 and punteggio < 30:
-                indice_sfondo = 1
-            elif punteggio >= 30:
-                indice_sfondo = 2
-            else:
-                indice_sfondo = 0
             
-            screen.blit(sfondi_gioco[indice_sfondo], (0, 0))
+#             screen.blit(sfondi_gioco[indice_sfondo], (0, 0))
             # Disegna lo sfondo del gioco
             imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
             imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
@@ -162,9 +145,12 @@ def main() -> None:
             aereo_y+=aereo_vel
                 
             # Disegna l'aereo
-            imgAereo = pygame.image.load("imgAereo.png") 
+            imgAereo = pygame.image.load("imgAereo.png").convert_alpha() 
             imgAereo = pygame.transform.scale(imgAereo,(150,100))
             screen.blit(imgAereo, (aereo_x, aereo_y))
+            
+            maskAereo=pygame.mask.from_surface(imgAereo)
+            
             
             #Gestisco i limiti dello schermo
             #se l'aereo arriva sopra il margine in alto si ferma e scende per effetto di gravità
@@ -183,50 +169,45 @@ def main() -> None:
               
                         # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
             timer_palazzi += 1
-#             timer_antenne += 1
-            if timer_palazzi > 90: 
+            if timer_palazzi > 90:
                 buco_y = random.randint(120, 320) # Punto centrale del passaggio
                 
                 # Crea il rettangolo per il palazzo sopra e quello sotto
                 # (x, y, larghezza, altezza)
-                p_sopra = pygame.Rect(800, 0, 120, buco_y - 130)
-                p_sotto = pygame.Rect(800, buco_y + 130, 120, 448)
-#                 antenna_sopra = pygame.Rect(835, p_sopra.bottom, 30, 40) #il punto medio della base si trova a 850 ma l'antenna sarà larga 30, quindi 30/2 è 15, 850-15 è 835 
-#                 antenna_sotto = pygame.Rect(835, p_sotto.top - 40, 30, 40)
                 p_sopra = pygame.Rect(800, 0, 80, buco_y - 130)
                 p_sotto = pygame.Rect(800, buco_y + 130, 80, 448)
                 
                 palazzi.append(p_sopra)
                 palazzi.append(p_sotto)
                 timer_palazzi = 0
+            
 
-            # --- MUOVI E DISEGNA I PALAZZI ---
+            # muovi e disegna i palazzi
             for p in palazzi[:]:
-                p.x -= 5 # Sposta a sinistra
+                # Se il palazzo parte dall'alto
+                if p.y == 0:
+                    pos_palazzo = (p.x, p.bottom - 448)
+                    screen.blit(imgPalazzoSopra, pos_palazzo)
+                    maskCorrente = maskPalazzoSopra
+                else:
+                    pos_palazzo = (p.x, p.top)
+                    screen.blit(imgPalazzo, pos_palazzo)
+                    maskCorrente = maskPalazzo
 
-                if p.y == 0: # Se il palazzo parte dall'alto
-                    screen.blit(imgPalazzoSopra, (p.x, p.bottom - 448))
-                else:        # Se il palazzo parte dal basso
-                    screen.blit(imgPalazzo, (p.x, p.top))
-#                     
-#             for a in antenne[:]:
-#                 a.x -= 5 # Sposta a sinistra
+                    # Movimento
+                p.x -= 5
+
+                    #collisioni
+                offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)    #!!!
                 
-                # Se il palazzo esce dallo schermo, cancellalo dalla lista
-                if p.right < 0:
-                    palazzi.remove(p)
-                    punteggio += 0.5
 
-                for p in palazzi:
-                    if aereo_rect.colliderect(p):
-                        game = False
-                        home = True
-                        palazzi.clear() # Svuota i palazzi per la prossima partita
-                        timer_palazzi = 0
-#                         timer_antenne = 0
+                if maskAereo.overlap(maskCorrente, offset):
+#                     palazzi.clear()
+                    game = False
+                    home = True
+                    timer_palazzi = 0
 
-                        punteggio += 0
-                        indice_sfondo = 0
+
                         
         pygame.display.flip()
 
