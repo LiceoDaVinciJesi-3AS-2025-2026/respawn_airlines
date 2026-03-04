@@ -2,8 +2,6 @@ def main() -> None:
     import pygame
     import random 
 
-    
-
     pygame.init()
     #inizializza i moudli pygame
     
@@ -17,8 +15,32 @@ def main() -> None:
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
 
+
+    # CARICAMENTO IMMAGINI
+
     imgSfondo = pygame.image.load("sfondo.jpg")
     imgSfondo = pygame.transform.scale(imgSfondo, (larghezza_schermo, altezza_schermo))
+
+    imgReg = pygame.image.load("imgRegolamento.png")   
+    imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))
+
+    imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
+    imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
+
+    imgSfondoGameOver = pygame.image.load("imgGameOver.jpg")
+    imgSfondoGameOver = pygame.transform.scale(imgSfondoGameOver, (larghezza_schermo, altezza_schermo))
+
+    imgAereo = pygame.image.load("imgAereo.png").convert_alpha() 
+    imgAereo = pygame.transform.scale(imgAereo,(150,100))
+
+    # Carica l'immagine e crea quella sottosopra del palazzo
+    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha() #per la trasparenza
+    maskPalazzo= pygame.mask.from_surface(imgPalazzo)     #considera solo le parti delle immagini opache ignorando quelle trasparenti intorno
+
+    imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
+    maskPalazzoSopra= pygame.mask.from_surface(imgPalazzoSopra) 
+
+
 
     font = pygame.font.SysFont('Rewashington', 65)
 
@@ -44,14 +66,8 @@ def main() -> None:
     home = True   #corrisponde alla schermata home
     regolamento = False  #regolamento=True -> schermata del regolamento
     game = False  #gioco=True -> schermata del gioco
+    gameOver = False #gameOver=True-> schermata "hai perso"
     
-    # Carica l'immagine e crea quella sottosopra
-    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha() #per la trasparenza
-    maskPalazzo= pygame.mask.from_surface(imgPalazzo)     #considera solo le parti delle immagini opache ignorando quelle trasparenti intorno
-
-    imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
-    maskPalazzoSopra= pygame.mask.from_surface(imgPalazzoSopra) 
-
     # Variabili dei palazzi
     palazzi = []
     timer_palazzi = 0
@@ -71,13 +87,28 @@ def main() -> None:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     #con esc si torna al menu se sei nel regolamento o nel gioco
-                    if regolamento or game:
+                    if regolamento or game or gameOver:
                         home = True       
                         regolamento = False
                         game = False
+                        gameOver=False
                     else:
                         #chiude il gioco se sei già nel menu
                         running = False
+                        
+                #se sei nella schermata game over e premi R, il gioco riparte
+                if event.key == pygame.K_r and gameOver:
+                    # Reset variabili aereo
+                    aereo_y = altezza_schermo // 2
+                    aereo_vel = 0
+
+                    # Svuota i palazzi
+                    palazzi.clear()
+                    timer_palazzi = 0
+
+                    # Torna alla schermata di gioco
+                    gameOver = False
+                    game = True
                 
                 #se ci si ritrova nel gioco e si preme spazio l'aereo viene spinto verso l'alto
                 if event.key == pygame.K_SPACE and game: 
@@ -118,19 +149,12 @@ def main() -> None:
             screen.blit(textReg, textRegRect)
         
         elif regolamento:
-            imgReg = pygame.image.load("imgRegolamento.png")   
-            imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))      
-            
             screen.blit(imgReg, (0, 0)) 
         
         #opero nella schermata del gioco
         elif game:
             
-#             screen.blit(sfondi_gioco[indice_sfondo], (0, 0))
             # Disegna lo sfondo del gioco
-            imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
-            imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
-            
             screen.blit(imgSfondoGame, (0, 0))
 
             # Gravità e movimento aereo
@@ -145,8 +169,6 @@ def main() -> None:
             aereo_y+=aereo_vel
                 
             # Disegna l'aereo
-            imgAereo = pygame.image.load("imgAereo.png").convert_alpha() 
-            imgAereo = pygame.transform.scale(imgAereo,(150,100))
             screen.blit(imgAereo, (aereo_x, aereo_y))
             
             maskAereo=pygame.mask.from_surface(imgAereo)
@@ -167,7 +189,7 @@ def main() -> None:
             aereo_rect = pygame.Rect(aereo_x, aereo_y, 50, 20) 
             aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30) 
               
-                        # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
+            # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
             timer_palazzi += 1
             if timer_palazzi > 90:
                 buco_y = random.randint(120, 320) # Punto centrale del passaggio
@@ -194,21 +216,27 @@ def main() -> None:
                     screen.blit(imgPalazzo, pos_palazzo)
                     maskCorrente = maskPalazzo
 
-                    # Movimento
+                # Movimento
                 p.x -= 5
+                
+#                 if p.x < -80:
+#                     palazzi.remove(p)   #C'è DA MODIFICARLO 
+#                     continue
 
-                    #collisioni
+                #collisioni
                 offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)    #!!!
                 
 
                 if maskAereo.overlap(maskCorrente, offset):
-#                     palazzi.clear()
                     game = False
-                    home = True
+                    home = False
+                    gameOver = True
+                    palazzi.clear()
                     timer_palazzi = 0
+        
+        elif gameOver:
+            screen.blit(imgSfondoGameOver, (0, 0))
 
-
-                        
         pygame.display.flip()
 
     pygame.quit()
