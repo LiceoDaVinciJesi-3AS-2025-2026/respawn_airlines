@@ -146,6 +146,9 @@ def main() -> None:
                     # Torna alla schermata di gioco
                     gameOver = False
                     game = True
+                    
+                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.play(-1)
                 
                 #se ci si ritrova nel gioco e si preme spazio l'aereo viene spinto verso l'alto
                 if event.key == pygame.K_SPACE and game: 
