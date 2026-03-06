@@ -2,7 +2,7 @@ def main() -> None:
     import pygame
     import random 
     from platformdirs import PlatformDirs
-    from pathlib import Path
+    from pathlib import Path                #MODIFICARE PUNTEGGI, AGGIUNGERE COMMENTI
 
     pygame.init()
     #inizializza i moudli pygame
@@ -24,7 +24,6 @@ def main() -> None:
     file_path = Path(dirs.user_data_dir) / "classifica.txt"
 # 
 #     high_score = 0
-#     # Verifichiamo se il file esiste senza usare os o try
 #     if file_path.exists():
 #         f = open(file_path, "r")
 #         contenuto = f.read()
@@ -58,7 +57,7 @@ def main() -> None:
     maskPalazzoSopra= pygame.mask.from_surface(imgPalazzoSopra) 
 
 
-
+    #CREAZIONE PULSANTI
     font = pygame.font.SysFont('Rewashington', 65)
 
     # creo il pulsante start
@@ -70,6 +69,20 @@ def main() -> None:
     buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 200, 300, 90)
     textReg = font.render('Regolamento', True, "white")
     textRegRect = textReg.get_rect(center=buttonRect_reg.center)
+    
+    
+    #AGGIUNTA SUONI
+    pygame.mixer.init() 
+    
+    # Musica di background
+    musica_background = "suonoGioco.mp3"
+    pygame.mixer.music.load(musica_background)
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)  # loop infinito
+
+    # Suono di esplosione
+    suono_esplosione = pygame.mixer.Sound("esplosione.mp3")
+    suono_esplosione.set_volume(0.5)
     
     
     #variabili aereo
@@ -84,12 +97,15 @@ def main() -> None:
     regolamento = False  #regolamento=True -> schermata del regolamento
     game = False  #gioco=True -> schermata del gioco
     gameOver = False #gameOver=True-> schermata "hai perso"
+    paused = False
     
     # Variabili dei palazzi
     palazzi = []
     palazzi_superati = []
     timer_palazzi = 0
+    timer_base_palazzi = 90
     score = 0
+    vel_base = 5  # velocità iniziale palazzi
     
     while running:
 
@@ -133,8 +149,19 @@ def main() -> None:
                 
                 #se ci si ritrova nel gioco e si preme spazio l'aereo viene spinto verso l'alto
                 if event.key == pygame.K_SPACE and game: 
-                    aereo_vel = -11
                     aereo_vel = -10
+                    
+                # PREMI "P" per mettere in pausa (o uscire dalla pausa)
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                    if paused:
+                        paused = False
+                        pygame.mixer.music.play()
+                    else:
+                        paused = True
+                        pygame.mixer.music.pause()
+
+            if paused:
+                continue
                       
             #gestione pulsanti          
             if event.type == pygame.MOUSEBUTTONDOWN:          
@@ -147,6 +174,8 @@ def main() -> None:
                     #se clicchi sul pulsante start esci dalla schermata iniziale e apre il regolamento (regolamento=True)
                     home=False
                     regolamento=True
+            
+            
 
 
         #ora opero sulla schermata iniziale 
@@ -205,42 +234,39 @@ def main() -> None:
 
             
             # Crea un rettangolo attorno all'aereo per vedere se tocca i palazzi
-            aereo_rect = pygame.Rect(aereo_x, aereo_y, 50, 20) 
-            aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30) 
+            aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30)
+            aereo_right = aereo_x + 150
               
-            # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
+#             # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
             timer_palazzi += 1
-            if timer_palazzi > 90:
+            vel_palazzi = vel_base + score * 0.5
+            timer_limite = max(20, int(timer_base_palazzi * vel_base / vel_palazzi))  # adatta timer alla velocità
+            if timer_palazzi >= timer_limite:
                 buco_y = random.randint(120, 320) # Punto centrale del passaggio
-                
+                centro_buco = random.randint(150 + buco_y // 2, altezza_schermo - 150 - buco_y // 2)
+                    
                 # Crea il rettangolo per il palazzo sopra e quello sotto
                 # (x, y, larghezza, altezza)
-                p_sopra = pygame.Rect(800, 0, 80, buco_y - 130)
-                p_sotto = pygame.Rect(800, buco_y + 130, 80, 448)
-                
+#                 p_sopra = pygame.Rect(800, 0, 80, centro_buco - 130)
+#                 p_sotto = pygame.Rect(800, centro_buco + 130, 80, 448)
+                p_sopra = pygame.Rect(larghezza_schermo, 0, 80, centro_buco - buco_y // 2)
+                p_sotto = pygame.Rect(larghezza_schermo, centro_buco + buco_y // 2, 80, altezza_schermo)
+                    
                 palazzi.append(p_sopra)
                 palazzi.append(p_sotto)
                 timer_palazzi = 0
             
 
-#             # muovi e disegna i palazzi
-#             for p in palazzi[:]:
-#                 
-#                 # Movimento
-#                 p.x -= 5
-#                 
-#                 aereo_right = aereo_x + 60  # larghezza dell'aereo
-#                 if p.y == 0 and p not in palazzi_superati and aereo_x > p.x + p.width:
-#                     score += 1
-#                     palazzi_superati.append(p)
+
             for p in palazzi[:]:
-                p.x -= 5  # Muovi il palazzo
-                 # Controlla lo score: se il lato DESTRO del palazzo è passato a SINISTRA dell'aereo
+                p.x -= vel_palazzi  # Muovi il palazzo verso sinistra
+                
+                score= len(palazzi_superati)
+                
                 if p.y == 0:
-                    if p.right < aereo_x and p not in palazzi_superati:
-                        score += 1
+                    if p.right < aereo_right and p not in palazzi_superati:
                         palazzi_superati.append(p)
-        
+#         
                 # Se il palazzo parte dall'alto
                 if p.y == 0:
                     pos_palazzo = (p.x, p.bottom - 448)
@@ -251,15 +277,22 @@ def main() -> None:
                     screen.blit(imgPalazzo, pos_palazzo)
                     maskCorrente = maskPalazzo
                
-#                 if p.x < -80:
-#                     palazzi.remove(p)   #C'è DA MODIFICARLO 
-#                     continue
+                if p.x < -500:
+                    palazzi.remove(p)  
+                    continue
 
                 #collisioni
                 offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)    #!!!
                 if maskAereo.overlap(maskCorrente, offset):
+                    
+                    # Riproduci il suono di esplosione
+                    suono_esplosione.play()
+                        
+                    # Ferma la musica di background
+                    pygame.mixer.music.stop()
+                    
                     # --- SALVATAGGIO PUNTEGGIO SU FILE ---
-                    # Usiamo 'a' per aggiungere il punteggio in fondo al file
+                    # Usiamo 'a' per aggiungere il punteggio in fondo al file                  
                     f = open(file_path, "a")
                     f.write("Punteggio: " + str(score) + "\n")
                     f.close()
@@ -267,19 +300,27 @@ def main() -> None:
                     game = False
                     home = False
                     gameOver = True
-                    palazzi.clear()
-                    palazzi_superati.clear()
-                    timer_palazzi = 0
                     
-                # Pulizia lista per non rallentare il gioco
-#                 if p.x < -100: palazzi.remove(p)
-                
+                    palazzi.clear()
+                    timer_palazzi = 0
+            
+
+            # mostra punteggio in tempo reale
+            score = len(palazzi_superati)
+            scoreText = font.render("Score: " + str(score), True, "darkred")
+            screen.blit(scoreText, (50, 50))
+                               
+            
         
         elif gameOver:
+            
+            fontScore= pygame.font.SysFont('Rewashington', 40)
+            
             screen.blit(imgSfondoGameOver, (0, 0))
             # Mostra punteggio finale
-            fScoreText = font.render(f"Hai fatto: {score}", True, "purple")
-            screen.blit(fScoreText, (larghezza_schermo // 2 - 150, altezza_schermo // 2))
+            fScoreText = fontScore.render(f"Palazzi superati: {len(palazzi_superati)}", True, "darkred")
+            # posizione in alto a sinistra ma un po' più in basso e leggermente staccato dal bordo
+            screen.blit(fScoreText, (10, 60))
 
         pygame.display.flip()
 
