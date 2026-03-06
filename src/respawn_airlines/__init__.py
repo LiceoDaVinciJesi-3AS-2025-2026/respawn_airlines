@@ -1,6 +1,8 @@
 def main() -> None:
     import pygame
     import random 
+    from platformdirs import PlatformDirs
+    from pathlib import Path
 
     pygame.init()
     #inizializza i moudli pygame
@@ -14,8 +16,22 @@ def main() -> None:
     
     #sistemo la larghezza e l'altezza della finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
+    
 
-
+    # "ensure_exists=True" crea automaticamente la cartella se non esiste
+    dirs = PlatformDirs("respawn_airlines", ensure_exists=True)
+    # Trasformiamo il percorso in un oggetto Path per usare .exists()
+    file_path = Path(dirs.user_data_dir) / "classifica.txt"
+# 
+#     high_score = 0
+#     # Verifichiamo se il file esiste senza usare os o try
+#     if file_path.exists():
+#         f = open(file_path, "r")
+#         contenuto = f.read()
+#         if contenuto != "":
+#             high_score = int(contenuto)
+#             f.close()
+    
     # CARICAMENTO IMMAGINI
 
     imgSfondo = pygame.image.load("sfondo.jpg")
@@ -32,6 +48,7 @@ def main() -> None:
 
     imgAereo = pygame.image.load("imgAereo.png").convert_alpha() 
     imgAereo = pygame.transform.scale(imgAereo,(150,100))
+    maskAereo=pygame.mask.from_surface(imgAereo)
 
     # Carica l'immagine e crea quella sottosopra del palazzo
     imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha() #per la trasparenza
@@ -70,7 +87,9 @@ def main() -> None:
     
     # Variabili dei palazzi
     palazzi = []
+    palazzi_superati = []
     timer_palazzi = 0
+    score = 0
     
     while running:
 
@@ -99,11 +118,13 @@ def main() -> None:
                 #se sei nella schermata game over e premi R, il gioco riparte
                 if event.key == pygame.K_r and gameOver:
                     # Reset variabili aereo
+                    score=0
                     aereo_y = altezza_schermo // 2
                     aereo_vel = 0
 
                     # Svuota i palazzi
                     palazzi.clear()
+                    palazzi_superati.clear() 
                     timer_palazzi = 0
 
                     # Torna alla schermata di gioco
@@ -171,9 +192,7 @@ def main() -> None:
             # Disegna l'aereo
             screen.blit(imgAereo, (aereo_x, aereo_y))
             
-            maskAereo=pygame.mask.from_surface(imgAereo)
-            
-            
+           
             #Gestisco i limiti dello schermo
             #se l'aereo arriva sopra il margine in alto si ferma e scende per effetto di gravità
             if aereo_y < 0:   
@@ -204,8 +223,24 @@ def main() -> None:
                 timer_palazzi = 0
             
 
-            # muovi e disegna i palazzi
+#             # muovi e disegna i palazzi
+#             for p in palazzi[:]:
+#                 
+#                 # Movimento
+#                 p.x -= 5
+#                 
+#                 aereo_right = aereo_x + 60  # larghezza dell'aereo
+#                 if p.y == 0 and p not in palazzi_superati and aereo_x > p.x + p.width:
+#                     score += 1
+#                     palazzi_superati.append(p)
             for p in palazzi[:]:
+                p.x -= 5  # Muovi il palazzo
+                 # Controlla lo score: se il lato DESTRO del palazzo è passato a SINISTRA dell'aereo
+                if p.y == 0:
+                    if p.right < aereo_x and p not in palazzi_superati:
+                        score += 1
+                        palazzi_superati.append(p)
+        
                 # Se il palazzo parte dall'alto
                 if p.y == 0:
                     pos_palazzo = (p.x, p.bottom - 448)
@@ -215,27 +250,36 @@ def main() -> None:
                     pos_palazzo = (p.x, p.top)
                     screen.blit(imgPalazzo, pos_palazzo)
                     maskCorrente = maskPalazzo
-
-                # Movimento
-                p.x -= 5
-                
+               
 #                 if p.x < -80:
 #                     palazzi.remove(p)   #C'è DA MODIFICARLO 
 #                     continue
 
                 #collisioni
                 offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)    #!!!
-                
-
                 if maskAereo.overlap(maskCorrente, offset):
+                    # --- SALVATAGGIO PUNTEGGIO SU FILE ---
+                    # Usiamo 'a' per aggiungere il punteggio in fondo al file
+                    f = open(file_path, "a")
+                    f.write("Punteggio: " + str(score) + "\n")
+                    f.close()
+                    
                     game = False
                     home = False
                     gameOver = True
                     palazzi.clear()
+                    palazzi_superati.clear()
                     timer_palazzi = 0
+                    
+                # Pulizia lista per non rallentare il gioco
+#                 if p.x < -100: palazzi.remove(p)
+                
         
         elif gameOver:
             screen.blit(imgSfondoGameOver, (0, 0))
+            # Mostra punteggio finale
+            fScoreText = font.render(f"Hai fatto: {score}", True, "purple")
+            screen.blit(fScoreText, (larghezza_schermo // 2 - 150, altezza_schermo // 2))
 
         pygame.display.flip()
 
