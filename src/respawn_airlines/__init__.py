@@ -2,126 +2,164 @@ def main() -> None:
     import pygame
     import random 
     from platformdirs import PlatformDirs
-    from pathlib import Path                #MODIFICARE PUNTEGGI, AGGIUNGERE COMMENTI
-
-    pygame.init()
-    #inizializza i moudli pygame
+    from pathlib import Path
     
-    #controlla la velocità del gioco
+    pygame.init()
+    # inizializza i moudli pygame
+    
+    # controlla la velocità del gioco (FPS)
     clock = pygame.time.Clock()
 
+    # dimensioni finestra del gioco
     larghezza_schermo = 1200
     altezza_schermo = 672
     
-    
-    #sistemo la larghezza e l'altezza della finestra
+    # creazione finestra
     screen = pygame.display.set_mode((larghezza_schermo, altezza_schermo))
-    
 
-    # "ensure_exists=True" crea automaticamente la cartella se non esiste
+    # crea automaticamente la cartella se non esiste
     dirs = PlatformDirs("respawn_airlines", ensure_exists=True)
-    # Trasformiamo il percorso in un oggetto Path per usare .exists()
-    file_path = Path(dirs.user_data_dir) / "classifica.txt"
-# 
-#     high_score = 0
-#     if file_path.exists():
-#         f = open(file_path, "r")
-#         contenuto = f.read()
-#         if contenuto != "":
-#             high_score = int(contenuto)
-#             f.close()
     
+    # crea percorso dei file
+    # Trasforma il percorso in un oggetto Path per usare .exists()
+    file_path = Path(dirs.user_data_dir) / "classifica.txt"
+    
+#--------------------------------------------------------------------------------------------------    
     # CARICAMENTO IMMAGINI
-
+    # carica l'immagine come sfondo della home
+    # riadatta l'immagine alla finestra
     imgSfondo = pygame.image.load("sfondo.jpg")
     imgSfondo = pygame.transform.scale(imgSfondo, (larghezza_schermo, altezza_schermo))
 
+    # carica l'immagine del regolamento
+    # riadatta l'immagine alla finestra
     imgReg = pygame.image.load("imgRegolamento.png")   
     imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))
 
+    # carica l'immagine del regolamento
+    # riadatta l'immagine alla finestra
     imgSfondoGame = pygame.image.load("imgSfondoNY.png")    
     imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
 
+    # carica l'immagine della schermata di quando perdi
+    # riadatta l'immagine alla finestra
     imgSfondoGameOver = pygame.image.load("imgGameOver.jpg")
     imgSfondoGameOver = pygame.transform.scale(imgSfondoGameOver, (larghezza_schermo, altezza_schermo))
 
+    # carica l'immagine dell'aereo
+    # riadatta l'immagine secondo la grandezza desiderata e con la trasparenza
+    # convert_alpha() serve a mantenere la trasparenza e a renderlo più veloce e semplice da disegnare
     imgAereo = pygame.image.load("imgAereo.png").convert_alpha() 
     imgAereo = pygame.transform.scale(imgAereo,(150,100))
     maskAereo=pygame.mask.from_surface(imgAereo)
 
-    # Carica l'immagine e crea quella sottosopra del palazzo
-    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha() #per la trasparenza
-    maskPalazzo= pygame.mask.from_surface(imgPalazzo)     #considera solo le parti delle immagini opache ignorando quelle trasparenti intorno
+    # Carica l'immagine del palazzo con la trasparenza
+    imgPalazzo = pygame.image.load("imgPalazzo.png").convert_alpha()
+    #mask serve a rilevare le collisioni precise lungo i bordi
+    maskPalazzo= pygame.mask.from_surface(imgPalazzo)    
 
+    # crea una versione capovolta verticalmente del palazzo
+    # servirà per il palazzo che sta sopra
     imgPalazzoSopra = pygame.transform.flip(imgPalazzo, False, True)
     maskPalazzoSopra= pygame.mask.from_surface(imgPalazzoSopra) 
 
-
+#-------------------------------------------------------------------------------------------------------------
     #CREAZIONE PULSANTI
+    #creo il font per scrivere il testo nei pulsanti
     font = pygame.font.SysFont('Rewashington', 65)
 
-    # creo il pulsante start
+    # creo il rettangolo del pulsante start cpn le scritte dentro
+    # (x, y, larghezza, lunghezza)
+    # x e y sarebbero il punto da dove parte il bottone
     buttonRect_start = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 320, 300, 90)
     textStart = font.render('Start', True, "white")
+    #centro la scritta dentro il pulsante
     textStartRect = textStart.get_rect(center=buttonRect_start.center)
 
-    # creo il pulsante regolamento
+    # creo il pulsante regolamento con la scritta centrata
     buttonRect_reg = pygame.Rect(larghezza_schermo // 2 + 40, altezza_schermo - 200, 300, 90)
     textReg = font.render('Regolamento', True, "white")
     textRegRect = textReg.get_rect(center=buttonRect_reg.center)
     
-    
+#----------------------------------------------------------------------------------------------------------   
     #AGGIUNTA SUONI
+    #inizializza il modulo mixer per riprodurre i suoni
     pygame.mixer.init() 
     
     # Musica di background
+    #file musicale
     musica_background = "suonoGioco.mp3"
+    #caricamento file
     pygame.mixer.music.load(musica_background)
+    #volume 50%
     pygame.mixer.music.set_volume(0.5)
-    pygame.mixer.music.play(-1)  # loop infinito
+    # -1 per un loop infinito
+    pygame.mixer.music.play(-1) 
 
     # Suono di esplosione
+    # caricamento suono
     suono_esplosione = pygame.mixer.Sound("esplosione.mp3")
+    #volume 50%
     suono_esplosione.set_volume(0.5)
     
-    
-    #variabili aereo
+#---------------------------------------------------------------------------   
+    # AEREO
+    # posizione orizzontale iniziale (spostato in avanti)
     aereo_x = 200
+    # posizione verticale iniziale (centro dello schermo)
     aereo_y = altezza_schermo // 2
+    # velocità iniziale = 0 
     aereo_vel = 0
+    # forza di gravità con la quale preicipita
     gravity = 0.6
+    # velocità massima a cui arriva
     vel_max = 10
-
-    running = True #fa funzionare il game loop
-    home = True   #corrisponde alla schermata home
-    regolamento = False  #regolamento=True -> schermata del regolamento
-    game = False  #gioco=True -> schermata del gioco
-    gameOver = False #gameOver=True-> schermata "hai perso"
-    paused = False
     
-    # Variabili dei palazzi
+    # controlla il loop del game
+    running = True
+    # True = schermata iniziale
+    home = True
+    # True = schermata regolamento
+    regolamento = False
+    # True = schermata gioco
+    game = False
+    # True = schermata Game Over
+    gameOver = False
+    # True = gioco in pausa
+    paused = False
+
+#---------------------------------------------------------------------
+    # PALAZZI
+    #liste palazzi 
     palazzi = []
     palazzi_superati = []
+    # timer per spawn palazzi
     timer_palazzi = 0
+    # intervallo tra un palazzo e l'altro
     timer_base_palazzi = 90
+    # punteggio da cui si parte
     score = 0
-    vel_base = 5  # velocità iniziale palazzi
+    # velocità dcon la quale i palazzi si muovono
+    vel_base = 5  
+#------------------------------------------------------------------------  
     
     while running:
 
         # posizione del mouse
         mPos = pygame.mouse.get_pos()
         
-        #regola la velocità del gioco
+        # regola la velocità del gioco (frame al secondo)
         clock.tick(60)
-
+        
+        # gestione eventi
+        # quando clicchi la X sul gioco, ti fa uscire
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            # se premi un tasto:
             if event.type == pygame.KEYDOWN:
+                # #con esc si torna al menu se sei nel regolamento o nel gioco
                 if event.key == pygame.K_ESCAPE:
-                    #con esc si torna al menu se sei nel regolamento o nel gioco
                     if regolamento or game or gameOver:
                         home = True       
                         regolamento = False
@@ -146,7 +184,7 @@ def main() -> None:
                     # Torna alla schermata di gioco
                     gameOver = False
                     game = True
-                    
+                    # aggiunge la musica
                     pygame.mixer.music.set_volume(0.5)
                     pygame.mixer.music.play(-1)
                 
@@ -154,7 +192,7 @@ def main() -> None:
                 if event.key == pygame.K_SPACE and game: 
                     aereo_vel = -10
                     
-                # PREMI "P" per mettere in pausa (o uscire dalla pausa)
+                # se premi "P" per mettere in pausa (o uscire dalla pausa)
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                     if paused:
                         paused = False
@@ -162,12 +200,16 @@ def main() -> None:
                     else:
                         paused = True
                         pygame.mixer.music.pause()
-
+                        
+            # se è già in pausa, salta il ciclo
             if paused:
                 continue
-                      
-            #gestione pulsanti          
-            if event.type == pygame.MOUSEBUTTONDOWN:          
+
+#---------------------------------------------------------------------------------------------
+            # PULSANTI
+            #se clicchi con il mouse
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # inizia il gioco
                 if buttonRect_start.collidepoint(mPos):
                     #se clicchi sul pulsante start esci dalla schermata iniziale e inizia il gioco (gioco=True)
                     home=False
@@ -177,148 +219,170 @@ def main() -> None:
                     #se clicchi sul pulsante start esci dalla schermata iniziale e apre il regolamento (regolamento=True)
                     home=False
                     regolamento=True
-            
-            
 
-
-        #ora opero sulla schermata iniziale 
+        # SCHERMATA INIZIALE: 
         if home:
-        
+            # disegna lo sfondo del menù di gioco
             screen.blit(imgSfondo, (0, 0))
 
-            #creo animazione del pulsante start
+            # animazione del pulsante start, da rosso ad arancione se ci si passa col mouse
             buttonColor_start = "red"
             if buttonRect_start.collidepoint(mPos):
                 buttonColor_start = "orange"
             button_start = pygame.draw.rect(screen,buttonColor_start,buttonRect_start)
             
-            #creo animazione del pulsante regolamento
+            # animazione del pulsante regolamento, da blu a verde
             buttonColor_reg = "blue"
             if buttonRect_reg.collidepoint(mPos):
                 buttonColor_reg = "green"
             button_reg = pygame.draw.rect(screen,buttonColor_reg,buttonRect_reg)
-
+            
+            # disegna il testo sopra i pulsanti
             screen.blit(textStart, textStartRect)
             screen.blit(textReg, textRegRect)
         
+        # REGOLAMENTO:
+        # disegna la schermata a schermo intero
         elif regolamento:
             screen.blit(imgReg, (0, 0)) 
         
-        #opero nella schermata del gioco
+        # GIOCO:
         elif game:
             
             # Disegna lo sfondo del gioco
             screen.blit(imgSfondoGame, (0, 0))
 
-            # Gravità e movimento aereo
-            #aggiungo la gravità alla velocità dell'aereo 
+            # gravità aggiunta alla velocità dell'aereo 
             aereo_vel += gravity
             
-            #evita che la velocità aumenti a dismisura, arrivato a 10 l'aereo non aumenta la velocità
+            # evita che la velocità aumenti a dismisura, arrivato a 10 non accelera più
             if aereo_vel > vel_max:
                 aereo_vel = vel_max
             
-            #permette di far muovere l'aereo in base al fatto che vada verso su o giù
+            # permette di far muovere l'aereo in base al fatto che vada verso su o giù
             aereo_y+=aereo_vel
                 
-            # Disegna l'aereo
+            # disegna l'aereo
             screen.blit(imgAereo, (aereo_x, aereo_y))
             
            
-            #Gestisco i limiti dello schermo
-            #se l'aereo arriva sopra il margine in alto si ferma e scende per effetto di gravità
+            # gestisco i limiti dello schermo
+            # limite dei bordi
             if aereo_y < 0:   
                 aereo_y = 0
                 aereo_vel = 0
-
-            if aereo_y > altezza_schermo - 50:  #ho messo 50 che è l'altezza dell'aereo
+            # 50 è l'altezza dell'aereo
+            if aereo_y > altezza_schermo - 50:  
                 aereo_y = altezza_schermo - 50
                 aereo_vel = 0
-
             
-            # Crea un rettangolo attorno all'aereo per vedere se tocca i palazzi
+            # rettangolo attorno all'aereo per vedere se tocca i palazzi
+            # (x, y, larghezza, lunghezza)
+            # aereo_x e aereo_y è la posizione in alto a sinistra
+            # figura larga 150 e alta 100
             aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30)
             aereo_right = aereo_x + 150
               
-#             # --- CREA I PALAZZI OGNI 90 MILLISECONDI ---
+#-------------------------------------------------------------------------------------------------------
+            #creazione palazzi 
             timer_palazzi += 1
+            # la velocità di spawn aumenta con il punteggio più alto
             vel_palazzi = vel_base + score * 0.5
-            timer_limite = max(20, int(timer_base_palazzi * vel_base / vel_palazzi))  # adatta timer alla velocità
+            # impone un limite allo spawn, lo adatta in base alla  velocità
+            # max 20 frame, più punti fai e vai veloce ---> spawn più frequente
+            timer_limite = max(20, int(timer_base_palazzi * vel_base / vel_palazzi))
+            
+            # quando deve spawnare un palazzo:
             if timer_palazzi >= timer_limite:
-                buco_y = random.randint(120, 320) # Punto centrale del passaggio
+                # altezza del buco random
+                buco_y = random.randint(120, 320)
+                # centro random, con un minimo di altezza di 150 più metà del buco e un massimo del palazzo sopra più metà del buco - 150
                 centro_buco = random.randint(150 + buco_y // 2, altezza_schermo - 150 - buco_y // 2)
                     
                 # Crea il rettangolo per il palazzo sopra e quello sotto
                 # (x, y, larghezza, altezza)
-#                 p_sopra = pygame.Rect(800, 0, 80, centro_buco - 130)
-#                 p_sotto = pygame.Rect(800, centro_buco + 130, 80, 448)
+                # parte da destra,  altezza = 0, largo 80 e finisce quando il rettangolo del buco inizia
                 p_sopra = pygame.Rect(larghezza_schermo, 0, 80, centro_buco - buco_y // 2)
+                # parte da destra, appena finisce il rettangolo del buco, è largo 80 e arriva fino a giù
                 p_sotto = pygame.Rect(larghezza_schermo, centro_buco + buco_y // 2, 80, altezza_schermo)
-                    
+                
+                # aggiungo alla lista dei palazzi attivi
                 palazzi.append(p_sopra)
                 palazzi.append(p_sotto)
+                # reset timer
                 timer_palazzi = 0
             
-
-
+# ------------------------------------------------------------------------------------------------------
+            # FUNZIONAMENTO
+            # ciclo sui palazzi attivi
+            # [:] crea una copia per rimuoveregli elementi
             for p in palazzi[:]:
-                p.x -= vel_palazzi  # Muovi il palazzo verso sinistra
-                
+                # muove verso  sx
+                p.x -= vel_palazzi  
+                # il numero di palazzi superati è uguale al punteggio
                 score= len(palazzi_superati)
                 
+                # se il palazzo in alto si controlla se il bordo dx è passato oltre l'aereo
+                # se sì, aumenta il punteggio
                 if p.y == 0:
                     if p.right < aereo_right and p not in palazzi_superati:
                         palazzi_superati.append(p)
-#         
-                # Se il palazzo parte dall'alto
+   
+                # se il palazzo parte dall'alto lo inverte e guarda quello che è di sotto (p.bottom)
+                # se è già quello sotto mette la mask
                 if p.y == 0:
                     pos_palazzo = (p.x, p.bottom - 448)
                     screen.blit(imgPalazzoSopra, pos_palazzo)
+                    # collisione precisa con l'aereo
                     maskCorrente = maskPalazzoSopra
                 else:
                     pos_palazzo = (p.x, p.top)
                     screen.blit(imgPalazzo, pos_palazzo)
                     maskCorrente = maskPalazzo
-               
+                    
+                # rimuove palazzi fuori schermo
                 if p.x < -500:
                     palazzi.remove(p)  
                     continue
-
-                #collisioni
-                offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)    #!!!
+# ------------------------------------------------------------------------------------------------------
+                # COLLISIONI
+                # offset serve perchè indica alle maschere dove posizionarsi
+                # dalla coordinata x del palazzo, alla coordinata x dell'aereo, dalla loro distanza in x e in y
+                offset = (pos_palazzo[0] - aereo_rect.x, pos_palazzo[1] - aereo_rect.y)
                 if maskAereo.overlap(maskCorrente, offset):
-                    
                     # Riproduci il suono di esplosione
                     suono_esplosione.play()
-                        
                     # Ferma la musica di background
                     pygame.mixer.music.stop()
-                    
-                    # --- SALVATAGGIO PUNTEGGIO SU FILE ---
-                    # Usiamo 'a' per aggiungere il punteggio in fondo al file                  
+
+# ---------------------------------------------------------------------------------------
+                    # SALVATAGGIO PUNTEGGIO SU FILE 
+                    # si usa 'a' per aggiungere il punteggio in fondo al file                  
                     f = open(file_path, "a")
                     f.write("Punteggio: " + str(score) + "\n")
                     f.close()
                     
+                    #aggiunge stati del gioco
                     game = False
                     home = False
                     gameOver = True
                     
+                    #reset palazzi
                     palazzi.clear()
                     timer_palazzi = 0
             
 
-            # mostra punteggio in tempo reale
+            # mostra punteggio in tempo reale in base ai apalzzi superati
             score = len(palazzi_superati)
             scoreText = font.render("Score: " + str(score), True, "darkred")
             screen.blit(scoreText, (50, 50))
                                
-            
-        
+#---------------------------------------------------------------------------------------
+        # schermata game over
         elif gameOver:
-            
+            # scritta
             fontScore= pygame.font.SysFont('Rewashington', 40)
-            
+            # apparizione dell'immagine
             screen.blit(imgSfondoGameOver, (0, 0))
             # Mostra punteggio finale
             fScoreText = fontScore.render(f"Palazzi superati: {len(palazzi_superati)}", True, "darkred")
