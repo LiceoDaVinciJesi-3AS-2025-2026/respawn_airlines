@@ -205,7 +205,7 @@ def main() -> None:
             if paused:
                 continue
 
-#---------------------------------------------------------------------------------------------
+
             # PULSANTI
             #se clicchi con il mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -283,7 +283,7 @@ def main() -> None:
             aereo_rect = pygame.Rect(aereo_x + 25, aereo_y + 20, 60, 30)
             aereo_right = aereo_x + 150
               
-#-------------------------------------------------------------------------------------------------------
+
             #creazione palazzi 
             timer_palazzi += 1
             # la velocità di spawn aumenta con il punteggio più alto
@@ -312,7 +312,7 @@ def main() -> None:
                 # reset timer
                 timer_palazzi = 0
             
-# ------------------------------------------------------------------------------------------------------
+            
             # FUNZIONAMENTO
             # ciclo sui palazzi attivi
             # [:] crea una copia per rimuoveregli elementi
@@ -344,7 +344,7 @@ def main() -> None:
                 if p.x < -500:
                     palazzi.remove(p)  
                     continue
-# ------------------------------------------------------------------------------------------------------
+
                 # COLLISIONI
                 # offset serve perchè indica alle maschere dove posizionarsi
                 # dalla coordinata x del palazzo, alla coordinata x dell'aereo, dalla loro distanza in x e in y
@@ -355,7 +355,7 @@ def main() -> None:
                     # Ferma la musica di background
                     pygame.mixer.music.stop()
 
-# ---------------------------------------------------------------------------------------
+
                     # SALVATAGGIO PUNTEGGIO SU FILE 
                     # si usa 'a' per aggiungere il punteggio in fondo al file                  
                     f = open(file_path, "a")
@@ -377,7 +377,7 @@ def main() -> None:
             scoreText = font.render("Score: " + str(score), True, "darkred")
             screen.blit(scoreText, (50, 50))
                                
-#---------------------------------------------------------------------------------------
+
         # schermata game over
         elif gameOver:
             # scritta
@@ -399,4 +399,3 @@ if __name__ == "__main__":
 
 
 
-  
