@@ -23,7 +23,19 @@ def main() -> None:
     # crea percorso dei file
     # Trasforma il percorso in un oggetto Path per usare .exists()
     file_path = Path(dirs.user_data_dir) / "classifica.txt"
+    f = open(file_path, "r")
     
+    # la variabile highscore crea il punteggio più alto, da 0 in su
+    highscore = 0
+    # lettura del file dei punteggi riga per riga
+    # replace toglie la scritta "Punteggio: " così che venga letto solo il numero
+    for riga in f:
+        numero = int(riga.replace("Punteggio: ", ""))
+        # viene confrontato il punteggio con l'highscore
+        if numero > highscore:
+            highscore = numero
+    f.close()
+            
 #--------------------------------------------------------------------------------------------------    
     # CARICAMENTO IMMAGINI
     # carica l'immagine come sfondo della home
@@ -362,6 +374,14 @@ def main() -> None:
                     f.write("Punteggio: " + str(score) + "\n")
                     f.close()
                     
+                    # se fai un punteggio più alto dell'highscore, si aggiorna
+                    # apre il file e scrive il nuovo punteggio massimo
+                    if score > highscore:
+                        highscore = score
+                        f = open(file_path, "w")
+                        f.write(str(highscore))
+                        f.close()
+                    
                     #aggiunge stati del gioco
                     game = False
                     home = False
@@ -372,7 +392,7 @@ def main() -> None:
                     timer_palazzi = 0
             
 
-            # mostra punteggio in tempo reale in base ai apalzzi superati
+            # mostra punteggio in tempo reale in base ai palzzi superati
             score = len(palazzi_superati)
             scoreText = font.render("Score: " + str(score), True, "darkred")
             screen.blit(scoreText, (50, 50))
@@ -384,11 +404,15 @@ def main() -> None:
             fontScore= pygame.font.SysFont('Rewashington', 40)
             # apparizione dell'immagine
             screen.blit(imgSfondoGameOver, (0, 0))
-            # Mostra punteggio finale
+            # punteggio finale
             fScoreText = fontScore.render(f"Palazzi superati: {len(palazzi_superati)}", True, "darkred")
             # posizione in alto a sinistra ma un po' più in basso e leggermente staccato dal bordo
             screen.blit(fScoreText, (10, 60))
-
+            # scritta highscore
+            highScoreText = fontScore.render("High Score: " + str(highscore), True, "darkred")
+            screen.blit(highScoreText, (10,120))
+        
+        # il tutto viene mostrato nella finestra
         pygame.display.flip()
 
     pygame.quit()
