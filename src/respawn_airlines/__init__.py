@@ -34,7 +34,7 @@ def main() -> None:
     highscore = 0
     
     # lettura del file dei punteggi riga per riga
-    # replace toglie la scritta "Punteggio: " così che venga letto solo il numero
+    # "with" serve per gestire il file automaticamente: quando il blocco finisce il file viene chiuso da solo
     with open(file_classifica, "r") as f:
         for riga in f:
             riga = riga.strip()
@@ -46,7 +46,7 @@ def main() -> None:
 
             if numero > highscore:
                 highscore = numero
-                f.close()
+
             
 #--------------------------------------------------------------------------------------------------    
     # CARICAMENTO IMMAGINI
@@ -436,6 +436,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
 
