@@ -19,20 +19,34 @@ def main() -> None:
 
     # crea automaticamente la cartella se non esiste
     dirs = PlatformDirs("respawn_airlines", ensure_exists=True)
-    
-    #crea il file classifica
-    f = open("classifica.txt", "r")
-    
+
+    # percorso della cartella dati
+    data_dir = Path(dirs.user_data_dir)
+
+    # percorso del file classifica
+    file_classifica = data_dir / "classifica.txt"
+
+    # se il file non esiste lo crea
+    if not file_classifica.exists():
+        file_classifica.write_text("")
+        
     # la variabile highscore crea il punteggio più alto, da 0 in su
     highscore = 0
+    
     # lettura del file dei punteggi riga per riga
     # replace toglie la scritta "Punteggio: " così che venga letto solo il numero
-    for riga in f:
-        numero = int(riga.replace("Punteggio: ", ""))
-        # viene confrontato il punteggio con l'highscore
-        if numero > highscore:
-            highscore = numero
-    f.close()
+    with open(file_classifica, "r") as f:
+        for riga in f:
+            riga = riga.strip()
+
+            if riga == "":
+                continue
+
+            numero = int(riga.replace("Punteggio: ", ""))
+
+            if numero > highscore:
+                highscore = numero
+                f.close()
             
 #--------------------------------------------------------------------------------------------------    
     # CARICAMENTO IMMAGINI
@@ -374,17 +388,15 @@ def main() -> None:
 
                     # SALVATAGGIO PUNTEGGIO SU FILE 
                     # si usa 'a' per aggiungere il punteggio in fondo al file                  
-                    f = open("classifica.txt", "a")
-                    f.write("Punteggio: " + str(score) + "\n")
-                    f.close()
+                    with open(file_classifica, "a") as f:
+                        f.write("Punteggio: " + str(score) + "\n")
                     
                     # se fai un punteggio più alto dell'highscore, si aggiorna
                     # apre il file e scrive il nuovo punteggio massimo
                     if score > highscore:
                         highscore = score
-                        f = open("classifica.txt", "w")
-                        f.write(str(highscore))
-                        f.close()
+                        with open(file_classifica, "a") as f:
+                            f.write("Punteggio: " + str(highscore) + "\n")
                     
                     #aggiunge stati del gioco
                     game = False
