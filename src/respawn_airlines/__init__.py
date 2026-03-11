@@ -20,10 +20,8 @@ def main() -> None:
     # crea automaticamente la cartella se non esiste
     dirs = PlatformDirs("respawn_airlines", ensure_exists=True)
     
-    # crea percorso dei file
-    # Trasforma il percorso in un oggetto Path per usare .exists()
-    file_path = Path(dirs.user_data_dir) / "classifica.txt"
-    f = open(file_path, "r")
+    #crea il file classifica
+    f = open("classifica.txt", "r")
     
     # la variabile highscore crea il punteggio più alto, da 0 in su
     highscore = 0
@@ -370,7 +368,7 @@ def main() -> None:
 
                     # SALVATAGGIO PUNTEGGIO SU FILE 
                     # si usa 'a' per aggiungere il punteggio in fondo al file                  
-                    f = open(file_path, "a")
+                    f = open("classifica.txt", "a")
                     f.write("Punteggio: " + str(score) + "\n")
                     f.close()
                     
@@ -378,7 +376,7 @@ def main() -> None:
                     # apre il file e scrive il nuovo punteggio massimo
                     if score > highscore:
                         highscore = score
-                        f = open(file_path, "w")
+                        f = open("classifica.txt", "w")
                         f.write(str(highscore))
                         f.close()
                     
