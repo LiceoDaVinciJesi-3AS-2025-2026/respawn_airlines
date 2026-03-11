@@ -352,10 +352,10 @@ def main() -> None:
                 # il numero di palazzi superati è uguale al punteggio
                 score= len(palazzi_superati)
                 
-                # se il palazzo in alto si controlla se il bordo dx è passato oltre l'aereo
+                # per il palazzo in alto (p.y == 0)si controlla se il bordo dx è passato oltre l'aereo
                 # se sì, aumenta il punteggio
                 if p.y == 0:
-                    if p.right < aereo_right and p not in palazzi_superati:
+                    if p.right < aereo_x and p not in palazzi_superati:
                         palazzi_superati.append(p)
    
                 # se il palazzo parte dall'alto lo inverte e guarda quello che è di sotto (p.bottom)
