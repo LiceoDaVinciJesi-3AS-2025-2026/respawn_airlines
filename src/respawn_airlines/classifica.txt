@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-33Punteggio: 16
+Punteggio: 16
 Punteggio: 5
 Punteggio: 7
 Punteggio: 1
@@ -12,6 +11,4 @@ Punteggio: 1
 Punteggio: 1
 Punteggio: 2
 Punteggio: 4
-=======
-31
->>>>>>> 85be5368b7d296fcb4253b41a477b7b6927ca659
+
