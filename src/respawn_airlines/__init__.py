@@ -175,6 +175,12 @@ def main() -> None:
                         regolamento = False
                         game = False
                         gameOver=False
+                        score=0
+                        
+                        # Svuota i palazzi
+                        palazzi.clear()
+                        palazzi_superati.clear() 
+                        timer_palazzi = 0
                     else:
                         #chiude il gioco se sei già nel menu
                         running = False
