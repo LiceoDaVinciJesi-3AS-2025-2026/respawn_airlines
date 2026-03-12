@@ -235,7 +235,6 @@ def main() -> None:
             if paused:
                 continue
 
-
             # PULSANTI
             #se clicchi con il mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -352,11 +351,8 @@ def main() -> None:
                 # il numero di palazzi superati è uguale al punteggio
                 score= len(palazzi_superati)
                 
-                # per il palazzo in alto (p.y == 0)si controlla se il bordo dx è passato oltre l'aereo
-                # se sì, aumenta il punteggio
+                # per il palazzo in alto (p.y == 0) si controlla se il bordo dx è passato oltre l'aereo
                 if p.y == 0:
-                    print("p.right:", p.right)
-                    print("aereo_x:", aereo_x)
                     if p.right < aereo_x and p not in palazzi_superati:
                         palazzi_superati.append(p)
    
