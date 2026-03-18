@@ -1,8 +1,12 @@
 def main() -> None:
-    import pygame
-    import random 
-    from platformdirs import PlatformDirs
+    #libreria Standard
+    import random
     from pathlib import Path
+    
+    #librerie pip
+    import pygame
+    from platformdirs import PlatformDirs
+
     
     pygame.init()
     # inizializza i moudli pygame
