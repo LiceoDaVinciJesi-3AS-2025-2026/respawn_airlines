@@ -1,16 +1,17 @@
-def main() -> None:
-    #libreria Standard
-    import random
-    from pathlib import Path
-    
-    #librerie pip
-    import pygame
-    from platformdirs import PlatformDirs
-    
-    #moduli del mio package
-    from .resources import *
+#libreria Standard
+import random
+from pathlib import Path
 
-    
+#librerie pip
+import pygame
+from platformdirs import PlatformDirs
+
+#moduli del mio package
+from .resources import *
+
+
+def main() -> None:
+        
     pygame.init()
     # inizializza i moudli pygame
     
