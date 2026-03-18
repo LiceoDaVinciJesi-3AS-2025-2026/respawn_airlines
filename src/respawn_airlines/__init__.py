@@ -6,6 +6,9 @@ def main() -> None:
     #librerie pip
     import pygame
     from platformdirs import PlatformDirs
+    
+    #moduli del mio package
+    from .resources import *
 
     
     pygame.init()
@@ -56,33 +59,33 @@ def main() -> None:
     # CARICAMENTO IMMAGINI
     # carica l'immagine come sfondo della home
     # riadatta l'immagine alla finestra
-    imgSfondo = pygame.image.load("src/respawn_airlines/sfondo.jpg")
+    imgSfondo = pygame.image.load( get_image("sfondo.jpg") )
     imgSfondo = pygame.transform.scale(imgSfondo, (larghezza_schermo, altezza_schermo))
 
     # carica l'immagine del regolamento
     # riadatta l'immagine alla finestra
-    imgReg = pygame.image.load("src/respawn_airlines/imgRegolamento.png")   
+    imgReg = pygame.image.load( get_image("imgRegolamento.png") )
     imgReg = pygame.transform.scale(imgReg,(larghezza_schermo,altezza_schermo))
 
     # carica l'immagine del regolamento
     # riadatta l'immagine alla finestra
-    imgSfondoGame = pygame.image.load("src/respawn_airlines/imgSfondoNY.png")    
+    imgSfondoGame = pygame.image.load( get_image("imgSfondoNY.png") )    
     imgSfondoGame = pygame.transform.scale(imgSfondoGame,(larghezza_schermo,altezza_schermo))
 
     # carica l'immagine della schermata di quando perdi
     # riadatta l'immagine alla finestra
-    imgSfondoGameOver = pygame.image.load("src/respawn_airlines/imgGameOver.jpg")
+    imgSfondoGameOver = pygame.image.load( get_image("imgGameOver.jpg") )
     imgSfondoGameOver = pygame.transform.scale(imgSfondoGameOver, (larghezza_schermo, altezza_schermo))
 
     # carica l'immagine dell'aereo
     # riadatta l'immagine secondo la grandezza desiderata e con la trasparenza
     # convert_alpha() serve a mantenere la trasparenza e a renderlo più veloce e semplice da disegnare
-    imgAereo = pygame.image.load("src/respawn_airlines/imgAereo.png").convert_alpha() 
+    imgAereo = pygame.image.load( get_image("imgAereo.png")).convert_alpha() 
     imgAereo = pygame.transform.scale(imgAereo,(150,100))
     maskAereo=pygame.mask.from_surface(imgAereo)
 
     # Carica l'immagine del palazzo con la trasparenza
-    imgPalazzo = pygame.image.load("src/respawn_airlines/imgPalazzo.png").convert_alpha()
+    imgPalazzo = pygame.image.load( get_image("imgPalazzo.png")).convert_alpha()
     #mask serve a rilevare le collisioni precise lungo i bordi
     maskPalazzo= pygame.mask.from_surface(imgPalazzo)    
 
@@ -116,7 +119,7 @@ def main() -> None:
     
     # Musica di background
     #file musicale
-    musica_background = "src/respawn_airlines/suonoGioco.mp3"
+    musica_background = get_sound("suonoGioco.mp3")
     #caricamento file
     pygame.mixer.music.load(musica_background)
     #volume 50%
@@ -126,7 +129,7 @@ def main() -> None:
 
     # Suono di esplosione
     # caricamento suono
-    suono_esplosione = pygame.mixer.Sound("src/respawn_airlines/esplosione.mp3")
+    suono_esplosione = pygame.mixer.Sound(get_sound("esplosione.mp3"))
     #volume 50%
     suono_esplosione.set_volume(0.5)
     
