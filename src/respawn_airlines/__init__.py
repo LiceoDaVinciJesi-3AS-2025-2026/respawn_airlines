@@ -18,7 +18,7 @@ import pygame
 from platformdirs import PlatformDirs
 
 #moduli del mio package
-from .resources import *
+from respawn_airlines.resources import *
 
 
 def main() -> None:
