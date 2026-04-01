@@ -1,3 +1,14 @@
+# respawn_airlines - a game where you can be a pilot
+# after you click 'start' the test begins: make sure you go through two skyscrapers at once
+# the more you demonstrate your ability, the more the difficulty increases
+# in fact, the plane gets faster after you pass each building
+#
+# License: See LICENSE file in the project root for details.
+#
+# Authors: 
+# Alessia Dornescu <alessia.dornescu00@gmail.com>
+# Emanuela Guerra <emanuelaguerraa@gmail.com>
+
 #libreria Standard
 import random
 from pathlib import Path
