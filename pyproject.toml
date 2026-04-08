@@ -1,5 +1,5 @@
 [project]
-name = "respawn-airlines"
+name = "respawn_airlines"
 version = "0.2.0"
 description = "Add your description here"
 readme = "README.md"
@@ -15,3 +15,8 @@ respawn-airlines = "respawn_airlines:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.19.0",
+]
